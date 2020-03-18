@@ -6,11 +6,8 @@ start_time = time.time()
 with np.load('mnist.npz') as data:
     training_images = data['training_images']
     training_labels = data['training_labels']
-
-learning_rate = .01
-iter_1 = 50
-iter_2 = 50
-counter = 0
+    test_images = data['test_images']
+    test_labels = data['test_labels']
 
 
 class NeuralNetwork:
@@ -28,9 +25,9 @@ class NeuralNetwork:
         return self.sigmoid() * (1.0 - self.sigmoid())
 
 lvl_input = NeuralNetwork(784)
-lvl_one = NeuralNetwork(200, 784)
-lvl_two = NeuralNetwork(200, 200)
-lvl_output = NeuralNetwork(10, 200)
+lvl_one = NeuralNetwork(20, 784)
+lvl_two = NeuralNetwork(20, 20)
+lvl_output = NeuralNetwork(10, 20)
 
 
 def forward_prop():
@@ -43,18 +40,21 @@ def back_prop(actual):
     val = np.zeros((10, 1))
     val[actual] = 1
 
-    error_1 = lvl_output.sigmoid() - val
-    lvl_output.grad += error_1 @ lvl_one.sigmoid().T
+    delta_3 = (lvl_output.sigmoid() - val) * lvl_output.sigmoid_derivative()
+    delta_2 = np.dot(lvl_output.weight.transpose(), delta_3) * lvl_two.sigmoid_derivative()
+    delta_1 = np.dot(lvl_two.weight.transpose(), delta_2) * lvl_one.sigmoid_derivative()
 
-    error_2 = lvl_two.sigmoid_derivative() * (lvl_output.weight.T @ error_1)
-    lvl_two.grad += error_2 @ lvl_one.sigmoid().T
-
-    error_3 = lvl_one.sigmoid_derivative() * (lvl_two.weight.T @ error_2)
-    lvl_one.grad += error_3 @ lvl_input.mtrx.T
+    lvl_output.grad = lvl_two.sigmoid().transpose() * delta_3
+    lvl_two.grad = lvl_one.sigmoid().transpose() * delta_2
+    lvl_one.grad = lvl_input.mtrx.transpose() * delta_1
 
 
-def make_image(c):
+def make_image_train(c):
     lvl_input.mtrx = training_images[c]
+
+
+def make_image_test(c):
+    lvl_input.mtrx = test_images[c]
 
 
 def cost(actual):
@@ -73,14 +73,33 @@ def update():
     lvl_one.grad = np.zeros(np.shape(lvl_one.grad))
 
 
+learning_rate = 1
+iter_1 = 50000
+iter_2 = 1
+counter = 0
+print("Learning . . . . \n")
 for batch_num in range(iter_1):
     update()
     for batches in range(iter_2):
-        make_image(counter)
+        make_image_train(counter)
         num = np.argmax(training_labels[counter])
         counter += 1
         forward_prop()
         back_prop(num)
-        print("actual: ", num, "     guess: ", np.argmax(lvl_output.mtrx), "     cost", cost(num))
+        learning_rate *= .9999
+print("Done learning.\n")
 
-print("--- %s seconds ---" % (time.time() - start_time))
+
+iter_1 = 10000
+correct = 0
+counter = 0
+for test_cases in range(iter_1):
+    make_image_test(counter)
+    num = np.argmax(test_labels[counter])
+    counter += 1
+    forward_prop()
+    if np.argmax(lvl_output.mtrx) == num:
+        correct += 1
+    print("Actual: {}".format(num), "    Guess: {}".format(np.argmax(lvl_output.mtrx)), "    Cost: {}".format(cost(num)))
+print("\nPercent Correct: {}%".format((correct * 100)/iter_1))
+print("\n--- %s seconds ---" % (time.time() - start_time))
