@@ -15,7 +15,7 @@ class NeuralNetwork:
     def __init__(self, rows, columns=0):
         self.mtrx = np.zeros((rows, 1))
         self.weight = np.random.normal(size=(rows, columns)) / (columns ** .5)
-        self.bias = np.random.random((rows, 1))
+        self.bias = np.random.normal(size=(rows, 1))
         self.grad = np.zeros((rows, columns))
 
     def sigmoid(self):
@@ -31,9 +31,9 @@ lvl_output = NeuralNetwork(10, 20)
 
 
 def forward_prop():
-    lvl_one.mtrx = lvl_one.weight.dot(lvl_input.mtrx)
-    lvl_two.mtrx = lvl_two.weight.dot(lvl_one.sigmoid())
-    lvl_output.mtrx = lvl_output.weight.dot(lvl_two.sigmoid())
+    lvl_one.mtrx = lvl_one.weight.dot(lvl_input.mtrx) + lvl_one.bias
+    lvl_two.mtrx = lvl_two.weight.dot(lvl_one.sigmoid()) + lvl_two.bias
+    lvl_output.mtrx = lvl_output.weight.dot(lvl_two.sigmoid()) + lvl_output.bias
 
 
 def back_prop(actual):
@@ -47,6 +47,10 @@ def back_prop(actual):
     lvl_output.grad = lvl_two.sigmoid().transpose() * delta_3
     lvl_two.grad = lvl_one.sigmoid().transpose() * delta_2
     lvl_one.grad = lvl_input.mtrx.transpose() * delta_1
+
+    lvl_output.bias -= learning_rate * delta_3
+    lvl_two.bias -= learning_rate * delta_2
+    lvl_one.bias -= learning_rate * delta_1
 
 
 def make_image_train(c):
@@ -73,7 +77,7 @@ def update():
     lvl_one.grad = np.zeros(np.shape(lvl_one.grad))
 
 
-learning_rate = 1
+learning_rate = .2
 iter_1 = 50000
 iter_2 = 1
 counter = 0
@@ -86,10 +90,9 @@ for batch_num in range(iter_1):
         counter += 1
         forward_prop()
         back_prop(num)
-        learning_rate *= .9999
 print("Done learning.\n")
 
-
+print("Testing . . . .\n")
 iter_1 = 10000
 correct = 0
 counter = 0
@@ -100,6 +103,6 @@ for test_cases in range(iter_1):
     forward_prop()
     if np.argmax(lvl_output.mtrx) == num:
         correct += 1
-    print("Actual: {}".format(num), "    Guess: {}".format(np.argmax(lvl_output.mtrx)), "    Cost: {}".format(cost(num)))
+    #print("Actual: {}".format(num), "    Guess: {}".format(np.argmax(lvl_output.mtrx)), "    Cost: {}".format(cost(num)))
 print("\nPercent Correct: {}%".format((correct * 100)/iter_1))
 print("\n--- %s seconds ---" % (time.time() - start_time))
