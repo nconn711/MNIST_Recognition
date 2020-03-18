@@ -87,7 +87,7 @@ def cost(actual):
 Subtraction gradients from weights and initializing learning rate
 
 ```
-learning_rate = .01
+learning_rate = .2
 
 def update():
     lvl_output.weight -= learning_rate * lvl_output.grad
@@ -95,7 +95,7 @@ def update():
     lvl_one.weight -= learning_rate * lvl_one.grad
 ```
 
-Training neural network -- stochastic gradient descent <br />
+Training neural network w/ stochastic gradient descent <br />
 iter_1 equals number of batches <br />
 iter_2 equals number of iterations in one batch
 
