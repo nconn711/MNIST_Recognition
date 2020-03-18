@@ -49,9 +49,9 @@ Forward and backward propagation functions
 
 ```
 def forward_prop():
-    lvl_one.mtrx = lvl_one.weight.dot(lvl_input.mtrx) + lvl_one.bias
-    lvl_two.mtrx = lvl_two.weight.dot(lvl_one.sigmoid()) + lvl_two.bias
-    lvl_output.mtrx = lvl_output.weight.dot(lvl_two.sigmoid()) + lvl_output.bias
+    lvl_one.mtrx = lvl_one.weight.dot(lvl_input.mtrx)
+    lvl_two.mtrx = lvl_two.weight.dot(lvl_one.sigmoid())
+    lvl_output.mtrx = lvl_output.weight.dot(lvl_two.sigmoid())
 
 
 def back_prop(actual):
@@ -64,7 +64,7 @@ def back_prop(actual):
 
     lvl_output.grad = lvl_two.sigmoid().transpose() * delta_3
     lvl_two.grad = lvl_one.sigmoid().transpose() * delta_2
-    lvl_one.grad = lvl_input.sigmoid().transpose() * delta_1
+    lvl_one.grad = lvl_input.mtrx.transpose() * delta_1
 ```
 
 Storing mnist data into np.array
@@ -95,13 +95,13 @@ def update():
     lvl_one.weight -= learning_rate * lvl_one.grad
 ```
 
-Training neural network <br />
+Training neural network -- stochastic gradient descent <br />
 iter_1 equals number of batches <br />
 iter_2 equals number of iterations in one batch
 
 ```
-iter_1 = 50
-iter_2 = 100
+iter_1 = 50000
+iter_2 = 1
 
 for batch_num in range(iter_1):
     update()
