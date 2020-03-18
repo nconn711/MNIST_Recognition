@@ -95,13 +95,13 @@ def update():
     lvl_one.weight -= learning_rate * lvl_one.grad
 ```
 
-Training neural network <br />
+Training neural network -- stochastic gradient descent <br />
 iter_1 equals number of batches <br />
 iter_2 equals number of iterations in one batch
 
 ```
-iter_1 = 50
-iter_2 = 100
+iter_1 = 50000
+iter_2 = 1
 
 for batch_num in range(iter_1):
     update()
