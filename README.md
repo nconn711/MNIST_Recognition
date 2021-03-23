@@ -5,6 +5,8 @@ Using only pure python and numpy, this program calculates the gradient descent o
 (∑(actual - target)^2) with respect to the weights, and changes the weights accordingly.
 After each iteration, the program prints the digit of the training data, the program's guess 
 and the cost associated with that iteration.
+
+Best accuracy: 92.7%
 <br />
 <br />
 Importing MNIST training data
